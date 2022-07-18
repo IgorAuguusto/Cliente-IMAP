@@ -19,9 +19,7 @@ else:
     print("Conexão Recusada")
 
 #Realizando autenticação do usuário
-def login():
-    login = input("Entre com seu e-mail: ")
-    senha = getpass.getpass(prompt='Password: ', stream=None)
+def login(login,senha):
     login = login.split("@")
     tcp.send(f"1 LOGIN {login[0]} {senha}\r\n".encode())
     recv = (tcp.recv(1024))

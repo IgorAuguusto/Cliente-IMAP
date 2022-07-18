@@ -1,17 +1,19 @@
+import email
 from modulo_imap import*
+from modulo_smtp import loginSM, enviarEmail
 
 def main():
     print("LOGIN".center(70, '-'))
-    logado = login()
-    while logado == False:
-        login()
-        logado = True
-
+    email = input("Entre com seu e-mail: ")
+    senha = getpass.getpass(prompt='Password: ', stream=None)
+    login(email,senha)
+    loginSM(email,senha)
+    
     sistema_criacao_maillbox("TRASH")
 
     while True:
         print("SELECIONE A OPÇÃO:".center(70,"_"))
-        opcao = int(input("1-Ver E-mails    2-Ver Lixeira   3-Fazer Logout".center(69," ")))
+        opcao = int(input("1-Ver E-mails    2-Ver Lixeira   3-Enviar E-mail    4-Fazer Logout".center(69," ")))
         if opcao == 1:
             sistema_de_inbox()
         else:
@@ -19,8 +21,11 @@ def main():
                 sistema_de_lixeira()
             else:
                 if  opcao == 3:
-                    logout()
-                    break
+                    enviarEmail(email)
+                else:
+                    if opcao == 4:
+                        logout()
+                        break
 
 def sistema_de_inbox():
     fecha_mailbox_atual()
