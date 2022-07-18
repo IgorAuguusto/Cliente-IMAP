@@ -16,8 +16,7 @@ def main():
         print("SELECIONE A OPÇÃO:".center(70,"_"))
         opcao = int(input("1-Ver E-mails    2-Ver Lixeira   3-Fazer Logout".center(69," ")))
         if opcao == 1:
-            sistema_visualizacao_mailbox("INBOX")
-
+            sistema_de_inbox()
         else:
             if(opcao == 2):
                 sistema_de_lixeira()
@@ -26,6 +25,9 @@ def main():
                     logout()
                     break
 
+def sistema_de_inbox():
+    fecha_mailbox_atual()
+    sistema_visualizacao_mailbox("INBOX")
 
 def sistema_visualizacao_mailbox(nome_mailbox):
     resposta_servidor = seleciona_mailbox(nome_mailbox)
@@ -54,7 +56,7 @@ def sistema_visualizacao_mailbox(nome_mailbox):
 
 
 def sistema_de_lixeira():
-    ##visualizar_lixeira()
+    fecha_mailbox_atual()
     if(not verifica_existencia_mailbox("TRASH")):
         if(cria_mailbox("TRASH")):
             print("Lixeira criada.".center(75," "))
