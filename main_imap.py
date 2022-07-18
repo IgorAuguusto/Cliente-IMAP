@@ -1,13 +1,13 @@
 import email
 from modulo_imap import*
-from modulo_smtp import loginSM, enviarEmail
+from modulo_smtp import login_sm, enviarEmail
 
 def main():
     print("LOGIN".center(70, '-'))
     email = input("Entre com seu e-mail: ")
     senha = getpass.getpass(prompt='Password: ', stream=None)
     login(email,senha)
-    loginSM(email,senha)
+    login_sm(email,senha)
     
     sistema_criacao_maillbox("TRASH")
 
