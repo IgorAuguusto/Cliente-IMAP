@@ -101,20 +101,7 @@ def uids(tamanho):
         print("UID FETCH FALHOU")
 
 
-def listarCabecalho(tamanho):    
-    uid = uids(tamanho)
-    for cont in range(len(uid)-1):
-        tcp.send(f"5 UID fetch {uid[cont][4]} (body[header.fields (from to subject date)])\r\n".encode())
-        recv = tcp.recv(2048)
-        recv = recv.decode("utf-8")
-        recv = recv.split("\r\n")
-        if  (uid[cont][6]) == "(\Seen" or (uid[cont][6]) == "(\Seen))":
-            print(f"Email {uid[cont][1]} Visualizado".center(70, '_'))
-        else:
-            print(f"Email {uid[cont][1]} Não Visualizado".center(70, '_'))
-        for i in range(1,5):
-            print(recv[i])
-    print()
+
 
 def listar_cabecalhos(uid):
     for cont in range(len(uid)-1):
@@ -131,31 +118,53 @@ def listar_cabecalhos(uid):
     print()
     
 
-def abrirEmail(tamanho):
-    uid = uids(tamanho)
-    numeroDoEmail = input("Forneça o número do email que deseja abrir: ")
-    print("-"*70)
-    for cont in range(len(uid)):
-        if numeroDoEmail == uid[cont][1]:
-            tcp.send(f"6 UID fetch {uid[cont][4]} (UID RFC822.SIZE BODY.PEEK[])\r\n".encode())
-            #tcp.send(f"6 fetch {uid[cont][4]} body[text]\r\n".encode())
-            recv = tcp.recv(1024)
-            recv = recv.decode("utf-8")
-            return print("\n",recv)
-            
-    print("Número que corresponde ao email não foi encontrado")  
-    return abrirEmail(tamanho)
-
 
 def visualizar_email(email_uid):
     tcp.send(f"6 UID fetch {email_uid} (UID RFC822.SIZE BODY.PEEK[])\r\n".encode())
     #tcp.send(f"6 fetch {uid[cont][4]} body[text]\r\n".encode())
     recv = tcp.recv(1024)
     recv = recv.decode("utf-8")
-    return print("\n",recv)    
+    return print("\n",recv)
 
+
+def sistema_exclusao_email(email_uid):
+    if(copiar_email_para_outra_mailbox(email_uid, "TRASH")):
+        print("\nEmail movido para a lixeira\n")
+    if(marcar_email_para_exclusao(email_uid)):
+        print("\nEmail maracado para ser excluido\n")
+    if(executa_comando_expunge()):
+        print("\nEmail excluido\n")
     
 
+def sistema_exclusão_email_lixeira(email_uid):
+    marcar_email_para_exclusao(email_uid)
+    executa_comando_expunge()
+
+
+def executa_comando_expunge():
+    tcp.send("24 expunge\r\n".encode())
+    recv = tcp.recv(1024)
+    return "OK" in recv.decode(('utf-8'))  
+
+def marcar_email_para_exclusao(email_uid):
+    tcp.send("23 uid store {} +flags.silent (\Seen \Deleted)\r\n".format(email_uid).encode())
+    recv = tcp.recv(1024)
+    return "OK" in recv.decode(('utf-8'))  
+
+def copiar_email_para_outra_mailbox(email_uid, mailbox_name):
+    tcp.send("22 uid copy {} {}\r\n".format(email_uid, mailbox_name).encode())
+    recv = tcp.recv(1024)
+    return "OK" in recv.decode(('utf-8'))  
+        
+
+
+    
+def sistema_criacao_maillbox(mailbox_name):
+    fecha_mailbox_atual()
+    if(not verifica_existencia_mailbox(mailbox_name)):
+        if(cria_mailbox(mailbox_name)):
+            print("{} criado".format(mailbox_name))
+    
 
 
 #Realizando Logout 

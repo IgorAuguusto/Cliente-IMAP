@@ -7,11 +7,8 @@ def main():
         login()
         logado = True
 
-    #selecionando o inbox
-    resposta_servidor = seleciona_mailbox("INBOX")
+    sistema_criacao_maillbox("TRASH")
 
-    #pegando o número de mensagens
-    numMensa = numeroTotalMensagens(resposta_servidor) 
     while True:
         print("SELECIONE A OPÇÃO:".center(70,"_"))
         opcao = int(input("1-Ver E-mails    2-Ver Lixeira   3-Fazer Logout".center(69," ")))
@@ -27,9 +24,9 @@ def main():
 
 def sistema_de_inbox():
     fecha_mailbox_atual()
-    sistema_visualizacao_mailbox("INBOX")
+    sistema_visualizacao_mailbox("INBOX",False)
 
-def sistema_visualizacao_mailbox(nome_mailbox):
+def sistema_visualizacao_mailbox(nome_mailbox, is_lixeira):
     resposta_servidor = seleciona_mailbox(nome_mailbox)
     numero_mensagens = numeroTotalMensagens(resposta_servidor)
     lista_uids = uids(numero_mensagens)
@@ -46,8 +43,12 @@ def sistema_visualizacao_mailbox(nome_mailbox):
             visualizar_email(lista_uids[opcao_escolhida -1][4])
             print("-"*70)
             opcao_aberto = int(input("\n1-Responder 2-Excluir 3-Voltar: "))
-            # if opcao_aberto == 3:
-            #     break
+            if opcao_aberto == 2:
+                if(not is_lixeira):
+                    sistema_exclusao_email(lista_uids[opcao_escolhida -1][4])
+                else:
+                    sistema_exclusão_email_lixeira(lista_uids[opcao_escolhida -1][4])
+                lista_uids = uids(numero_mensagens -1)
         else:
             if opcao_escolhida == -1:
                 break
@@ -56,12 +57,7 @@ def sistema_visualizacao_mailbox(nome_mailbox):
 
 
 def sistema_de_lixeira():
-    fecha_mailbox_atual()
-    if(not verifica_existencia_mailbox("TRASH")):
-        if(cria_mailbox("TRASH")):
-            print("Lixeira criada.".center(75," "))
-   
-    sistema_visualizacao_mailbox("TRASH")
+   sistema_visualizacao_mailbox("TRASH", True)
 
 
 
