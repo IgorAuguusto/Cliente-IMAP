@@ -129,8 +129,7 @@ def enviar_email(username):
     else:
         print('\nMensagem enviada com sucesso!\n')
 
-    tcp.sendall('QUIT\r\n'.encode())
-
+   
 
 
 #Função para enviar o e-mail
@@ -184,4 +183,10 @@ def responder_email(username, destinatario, assunto):
     else:
         print('\nMensagem enviada com sucesso!\n')
 
+    
+
+
+def logout_stmp():
     tcp.sendall('QUIT\r\n'.encode())
+    tcp.close()
+

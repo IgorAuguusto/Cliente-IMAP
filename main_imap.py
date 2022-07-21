@@ -1,7 +1,6 @@
-import email
-from modulo_imap import*
-from modulo_smtp import login_sm, enviar_email, responder_email
 
+from modulo_imap import*
+from modulo_smtp import login_sm, enviar_email, responder_email, logout_stmp
 def main():
     global email
     print("LOGIN".center(70, '-'))
@@ -34,6 +33,7 @@ def main():
                 else:
                     if opcao == 4:
                         logout()
+                        logout_stmp()
                         break
 
 def sistema_de_inbox():
@@ -41,10 +41,10 @@ def sistema_de_inbox():
     sistema_visualizacao_mailbox("INBOX",False)
 
 def sistema_visualizacao_mailbox(nome_mailbox, is_lixeira):
-    resposta_servidor = seleciona_mailbox(nome_mailbox)
-    numero_mensagens = numero_total_mensagens(resposta_servidor)
-    lista_uids = uids(numero_mensagens)
     while True:
+        resposta_servidor = seleciona_mailbox(nome_mailbox)
+        numero_mensagens = numero_total_mensagens(resposta_servidor)
+        lista_uids = uids(numero_mensagens)
         print("="*70)
         print(" "*35 + nome_mailbox)
         print("="*70)

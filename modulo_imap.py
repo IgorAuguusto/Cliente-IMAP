@@ -96,7 +96,7 @@ def uids(tamanho):
 
 def listar_cabecalhos(uid):
     for cont in range(len(uid)-1):
-        tcp.send(f"5 UID fetch {uid[cont][4]} (body[header.fields (from to subject date)])\r\n".encode())
+        tcp.send(f"5 UID fetch {uid[cont][4]} (body.peek[header.fields (from to subject date)])\r\n".encode())
         recv = tcp.recv(1024)
         recv = recv.decode("utf-8")
         recv = recv.split("\r\n")
@@ -213,6 +213,7 @@ def sistema_criacao_maillbox(mailbox_name):
 def logout():
 
     tcp.send("9 LOGOUT\r\n".encode("utf-8"))
+    
     recv = (tcp.recv(1024))
     if recv[:5].decode(("utf-8")) == ("* BYE"):
         print("\nLogout Feito com sucesso !!\n")
