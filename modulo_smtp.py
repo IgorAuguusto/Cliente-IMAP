@@ -1,5 +1,6 @@
 import socket
 import base64
+import time
 
 #Criando a conexão TCP com o servidor usando a porta do SMTP
 server_name = "mail.labredes.info"
@@ -21,9 +22,41 @@ recv = recv.decode()
 \
 if recv[:3] != '250':
     print('\nResposta não recebida pelo servidor.')
-else:
-    print('\nConexão estabelecida')
 
+#função que retorna uma mensagem com a data atual
+def tempo():
+
+    timestamp = time.time()  
+    timeArray = time.localtime(timestamp) 
+    formatTime = time.strftime("%Y-%m-%d %H:%M:%S", timeArray) 
+    formatar = formatTime.split('-')
+
+    if formatTime[5:7] == '01':
+        mes = 'Jan'
+    elif formatTime[5:7] == '02':
+        mes = 'Feb'
+    elif formatTime[5:7] == '03':
+        mes = 'Mar'
+    elif formatTime[5:7] == '04':
+        mes = 'Apr'
+    elif formatTime[5:7] == '05':
+        mes = 'May'
+    elif formatTime[5:7] == '06':
+        mes = 'Jun'
+    elif formatTime[5:7] == '07':
+        mes = 'Jul'
+    elif formatTime[5:7] == '08':
+        mes = 'Aug'
+    elif formatTime[5:7] == '09':
+        mes = 'Sep'
+    elif formatTime[5:7] == '10':
+        mes = 'Oct'
+    elif formatTime[5:7] == '11':
+        mes = 'Nov'
+    else:
+        mes = 'Dec'
+
+    return (f'Date: Fri, {formatTime[8:10]} {mes} {formatTime[0:4]} {formatTime[11:19]} -0300\r\n')
 
 
 #Realizando autenticação do usuário
@@ -39,9 +72,9 @@ def login_sm(username,password):
 
 #Se o valor de retorno de "recv" for diferente de 235 a autenticação falhou
     if (recv[:3] != '235'):
-        return 0
+        return False
     else:
-        return 1
+        return True
 
 
 
@@ -78,9 +111,11 @@ def enviar_email(username):
 
 
     #Enviando dados da mensagem para o destinatário
-    message = 'from:' + from_address + '@labredes.info' + '\r\n'
-    message += 'to:' + to_address + '\r\n'
-    message += 'subject:' + subject + '\r\n'
+    data = tempo()
+    message = 'Subject:' + subject + '\r\n'
+    message += 'From:' + from_address + '@labredes.info' + '\r\n'
+    message += 'To:' + to_address + '\r\n'
+    message +=data
     message += 'Content-Type:' + content_type + '\r\n'
     message += '\r\n' + msg
     tcp.sendall(message.encode())
@@ -131,9 +166,11 @@ def responder_email(username, destinatario, assunto):
 
 
     #Enviando dados da mensagem para o destinatário
-    message = 'from:' + from_address + '@labredes.info' + '\r\n'
-    message += 'to:' + to_address + '\r\n'
-    message += 'subject:' +  "Re: " + subject + '\r\n'
+    data = tempo()
+    message = 'Subject:' + subject + '\r\n'
+    message += 'From:' + from_address + '@labredes.info' + '\r\n'
+    message += 'To:' + to_address + '\r\n'
+    message +=data
     message += 'Content-Type:' + content_type + '\r\n'
     message += '\r\n' + msg
     tcp.sendall(message.encode())

@@ -1,3 +1,4 @@
+from operator import index
 import socket
 import getpass
 import re
@@ -13,9 +14,7 @@ tcp.connect((serverName, serverPort))
 recv = tcp.recv(1024)
 print(recv.decode('utf-8'))
 
-if "* OK" in recv.decode("utf-8"):
-    print("Conexão estabelecida")
-else:
+if not "* OK" in recv.decode("utf-8"):
     print("Conexão Recusada")
 
 #Realizando autenticação do usuário
@@ -40,7 +39,7 @@ def seleciona_mailbox(email_folder_name):
 
 
 #função que retorna o número total de mensagens existentes
-def numeroTotalMensagens(resposta_servidor):
+def numero_total_mensagens(resposta_servidor):
 
     for i in range(0, len(resposta_servidor)):
         if "EXISTS" in resposta_servidor[i]:
@@ -76,11 +75,6 @@ def cria_mailbox(nome_folder):
     return "OK" in recv.decode(('utf-8'))  
 
 
-
-
-
-
-
 #função que cria uma matriz com os uids, flags e status das mensagem
 def uids(tamanho): 
     tcp.send("4 UID fetch 1:* (FLAGS)\r\n".encode())
@@ -100,11 +94,10 @@ def uids(tamanho):
 
 
 
-
 def listar_cabecalhos(uid):
     for cont in range(len(uid)-1):
         tcp.send(f"5 UID fetch {uid[cont][4]} (body[header.fields (from to subject date)])\r\n".encode())
-        recv = tcp.recv(2048)
+        recv = tcp.recv(1024)
         recv = recv.decode("utf-8")
         recv = recv.split("\r\n")
         if  (uid[cont][6]) == "(\Seen" or (uid[cont][6]) == "(\Seen))":
@@ -118,12 +111,63 @@ def listar_cabecalhos(uid):
 
 
 def visualizar_email(email_uid):
-    tcp.send(f"6 UID fetch {email_uid} (UID RFC822.SIZE BODY.PEEK[])\r\n".encode())
-    #tcp.send(f"6 fetch {uid[cont][4]} body[text]\r\n".encode())
+    print()
+    print("#"*70)
+    print(f"EMAIL".center(70," "))
+    print("#"*70)
+    tcp.send(f"6 UID fetch {email_uid} (body[header.fields (from to subject date)])\r\n".encode())
     recv = tcp.recv(1024)
     recv = recv.decode("utf-8")
-    return print("\n",recv)
+    lista = []
+    recv = recv.split("\r\n")
+    for i in range(len(recv)):
+        if recv[i].startswith("From:") or recv[i].startswith("from:"):
+            lista.append(recv[i])
+        elif  recv[i].startswith("Subject:") or recv[i].startswith("subject:"):
+            lista.append(recv[i])
+        elif recv[i].startswith("To:") or recv[i].startswith("to:"):
+            lista.append(recv[i])
+        elif recv[i].startswith("Date:") or recv[i].startswith("date:"):
+            lista.append(recv[i])
+    print()
+    for i in range(len(lista)):
+        print(lista[i])
+    print()
+    tcp.send(f"30 UID fetch {email_uid} body[text] \r\n".encode())
+    recv = tcp.recv(40000)
+    recv = recv.decode("utf-8")
+    recv = recv.split("\r\n")
+    del recv[0],recv[-3:-1]
+    for i in range(len(recv)):
+        print(recv[i])
+    
 
+def destinatario_assunto(uid):
+    tcp.send(f"6 UID fetch {uid} (body[header.fields (from to subject date)])\r\n".encode())
+    recv = tcp.recv(1024)
+    recv = recv.decode("utf-8")
+    
+    recv = recv.split("\r\n")
+    for i in range(len(recv)):
+        if recv[i].startswith("From:") or recv[i].startswith("from:"):
+            destinatario = recv[i]
+    
+        elif  recv[i].startswith("Subject:") or recv[i].startswith("subject:"):
+            assunto = recv[i]
+
+    if "<" in destinatario:
+        destinatario = destinatario.split("<")
+        destinatario = destinatario[1].split(">")
+        destinatario = destinatario[0]
+    else:
+        destinatario = destinatario.split(":")
+        destinatario = destinatario[1]
+
+    if "Subject:" in assunto or "subject:" in assunto:
+        assunto = assunto.split(":")
+    
+    return destinatario, assunto[1]
+     
 
 def sistema_exclusao_email(email_uid):
     if(copiar_email_para_outra_mailbox(email_uid, "TRASH")):
