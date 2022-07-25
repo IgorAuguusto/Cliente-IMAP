@@ -1,6 +1,7 @@
 
 from modulo_imap import*
 from modulo_smtp import login_sm, enviar_email, responder_email, logout_stmp
+
 def main():
     global email
     print("LOGIN".center(70, '-'))
@@ -46,7 +47,7 @@ def sistema_visualizacao_mailbox(nome_mailbox, is_lixeira):
         numero_mensagens = numero_total_mensagens(resposta_servidor)
         lista_uids = uids(numero_mensagens)
         print("="*70)
-        print(" "*35 + nome_mailbox)
+        print(f"{nome_mailbox}".center(70," "))
         print("="*70)
        
         listar_cabecalhos(lista_uids)
