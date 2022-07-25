@@ -1,2 +1,2 @@
-# Servidor-IMAP
- Trabalho de redes servidor IMAP
+# Cliente-IMAP
+ Trabalho de redes cliente IMAP
